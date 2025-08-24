@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.cargo.target": "wasm32-unknown-unknown",
+    // https://github.com/rust-lang/rust-analyzer/issues/18090
+    "rust-analyzer.cargo.buildScripts.useRustcWrapper": false
+}

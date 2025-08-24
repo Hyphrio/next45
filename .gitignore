@@ -1,0 +1,7 @@
+target
+node_modules
+.wrangler
+build
+
+# Credentials
+.dev.vars

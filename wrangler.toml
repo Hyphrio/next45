@@ -1,0 +1,30 @@
+name = "next45"
+main = "build/worker/shim.mjs"
+compatibility_date = "2025-03-28"
+
+[build]
+command = "cargo install -q worker-build && worker-build --release"
+
+# Namespace for storing credentials for the bot to renew by its own.
+[[kv_namespaces]]
+binding = "Credentials"
+id = "a3ef94ce3d1f4deca9ae72959bc03d06"
+preview_id = "ba6ceb2ff5ca45b1b6ee546d88d4a1f5"
+
+# Namespace for storing timeout related information.
+[[kv_namespaces]]
+binding = "Timeouts"
+id = "e9428921ad5b4fb4b5b76b33e9c12bfc"
+preview_id = "fbd2da15576147c0900e3f4cdbf99bde"
+
+# Namespace for storing settings.
+[[kv_namespaces]]
+binding = "BroadcasterConfiguration"
+id = "93c002929ce14d988ec32cf88c658d6a"
+preview_id = "2ad2723e79294400ba03a260830f8413"
+
+# Storage for storing !45 data.
+[[d1_databases]]
+binding = "DB"
+database_name = "BotState"
+database_id = "43e211b6-dd6e-4fb9-979a-1ae511968c69"

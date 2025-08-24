@@ -1,0 +1,12 @@
+{
+  "name": "next45",
+  "private": "true",
+  "scripts": {
+    "dev": "wrangler dev",
+    "release": "wrangler deploy"
+  },
+  "packageManager": "pnpm@10.14.0",
+  "devDependencies": {
+    "wrangler": "^4.29.0"
+  }
+}
