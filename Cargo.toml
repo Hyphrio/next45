@@ -1,6 +1,6 @@
 [package]
 name = "next45"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 authors = ["Hyphrio <notmynn@proton.me>"]
 license = "MIT"

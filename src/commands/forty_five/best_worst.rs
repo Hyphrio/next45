@@ -9,7 +9,7 @@ pub struct Best {}
 #[argh(subcommand, name = "pb")]
 pub struct PersonalBest {
     #[argh(positional)]
-    pub chatter_user_login: Option<String>,
+    pub chatter_user_name: Option<String>,
 }
 
 #[derive(argh::FromArgs, Debug)]
@@ -20,7 +20,7 @@ pub struct Worst {}
 #[argh(subcommand, name = "pw")]
 pub struct PersonalWorst {
     #[argh(positional)]
-    pub chatter_user_login: Option<String>,
+    pub chatter_user_name: Option<String>,
 }
 
 impl CallableV2<ChannelChatMessageV1Payload> for Best {
@@ -46,7 +46,7 @@ impl CallableV2<ChannelChatMessageV1Payload> for PersonalBest {
         self,
         context: crate::commands::Context<ChannelChatMessageV1Payload>,
     ) -> BotResult<Option<String>> {
-        best_worst_impl(true, false, self.chatter_user_login, context).await
+        best_worst_impl(true, false, self.chatter_user_name, context).await
     }
 }
 
@@ -55,14 +55,14 @@ impl CallableV2<ChannelChatMessageV1Payload> for PersonalWorst {
         self,
         context: crate::commands::Context<ChannelChatMessageV1Payload>,
     ) -> BotResult<Option<String>> {
-        best_worst_impl(true, true, self.chatter_user_login, context).await
+        best_worst_impl(true, true, self.chatter_user_name, context).await
     }
 }
 
 async fn best_worst_impl(
     is_personal: bool,
     is_worst: bool,
-    chatter_user_login: Option<String>,
+    chatter_user_name: Option<String>,
     context: Context<ChannelChatMessageV1Payload>,
 ) -> BotResult<Option<String>> {
     // Database related init
@@ -74,7 +74,7 @@ async fn best_worst_impl(
     let http_client = HelixClient::with_client(FetchClient::default());
 
     // Personal Bests and Worsts
-    let user_id = if let Some(login) = &chatter_user_login {
+    let user_id = if let Some(login) = &chatter_user_name {
         let user = http_client
             .get_user_from_login(&login.replace("@", "").to_lowercase(), &token)
             .await?;
@@ -119,7 +119,33 @@ async fn best_worst_impl(
         Ok(query) => query,
         Err(error) => match error {
             sqlx_d1::Error::RowNotFound => {
-                if let Some(login) = &chatter_user_login {
+                let query = sqlx_d1::query!(
+                    "
+                    SELECT
+                      chatter_user_id
+                    FROM
+                      Attempts
+                    WHERE
+                      broadcaster_user_id = ?1
+                      AND chatter_user_id = ?2
+                    LIMIT 1;
+                    ",
+                    context.payload.broadcaster_user_id.as_str(),
+                    user_id
+                )
+                .fetch_one(&db_conn)
+                .await;
+
+                if query.is_ok() {
+                    if let Some(login) = &chatter_user_name {
+                        return Ok(Some(format!(
+                            "User {} has done a !45 in this channel, but a perfect 45 has been achieved and such the values has been wiped.",
+                            login
+                        )));
+                    }
+                }
+
+                if let Some(login) = &chatter_user_name {
                     return Ok(Some(format!(
                         "User {} hasn't done a !45 in this channel.",
                         login
