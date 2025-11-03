@@ -28,3 +28,7 @@ preview_id = "2ad2723e79294400ba03a260830f8413"
 binding = "DB"
 database_name = "BotState"
 database_id = "43e211b6-dd6e-4fb9-979a-1ae511968c69"
+
+# Logging
+[observability]
+enabled = true

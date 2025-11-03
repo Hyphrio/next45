@@ -32,9 +32,9 @@ pub async fn parse(env: Env, payload: ChannelChatMessageV1Payload) {
         .message
         .text
         .split_whitespace()
-        // 7tv sends an invalid unicode on chromium so drop the
+        // 7tv sends an invalid unicode so drop the
         // &str that has the specific character
-        .filter(|x| *x != "\u{e0000}")
+        .filter(|x| *x != "\u{34f}")
         .collect::<Vec<_>>();
 
     if !args[0].starts_with("!") {

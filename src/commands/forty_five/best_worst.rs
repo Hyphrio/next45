@@ -83,12 +83,15 @@ async fn best_worst_impl(
             Some(user) => {
                 let id = user.id.as_str().to_owned();
 
-                Some(id)
+                (Some(id), user.display_name.as_str().to_owned())
             }
             None => return Ok(Some(format!("User {login} not found."))),
         }
     } else {
-        Some(context.payload.chatter_user_id.as_str().to_owned())
+        (
+            Some(context.payload.chatter_user_id.as_str().to_owned()),
+            context.payload.chatter_user_name.as_str().to_owned(),
+        )
     };
 
     let result = sqlx_d1::query!(
@@ -99,7 +102,7 @@ async fn best_worst_impl(
             Attempts.epoch = (SELECT COUNT(*) FROM Attempts WHERE forty_five_difference = 0 AND broadcaster_user_id = ?3)
             AND Attempts.broadcaster_user_id = ?3
             AND (?1 = 0 OR Attempts.chatter_user_id = ?4)
-        ORDER BY   
+        ORDER BY
             (CASE
                 WHEN ?2 = 0 THEN
                     +Attempts.forty_five_difference
@@ -112,7 +115,7 @@ async fn best_worst_impl(
         is_personal,
         is_worst,
         context.payload.broadcaster_user_id.as_str(),
-        user_id
+        user_id.0
     ).fetch_one(&db_conn).await;
 
     let query = match result {
@@ -131,18 +134,16 @@ async fn best_worst_impl(
                     LIMIT 1;
                     ",
                     context.payload.broadcaster_user_id.as_str(),
-                    user_id
+                    user_id.0
                 )
                 .fetch_one(&db_conn)
                 .await;
 
                 if query.is_ok() {
-                    if let Some(login) = &chatter_user_name {
-                        return Ok(Some(format!(
-                            "User {} has done a !45 in this channel, but a perfect 45 has been achieved and such the values has been wiped.",
-                            login
-                        )));
-                    }
+                    return Ok(Some(format!(
+                        "User {} has done a !45 in this channel, but a perfect 45 has been achieved and such the values has been wiped.",
+                        user_id.1
+                    )));
                 }
 
                 if let Some(login) = &chatter_user_name {
